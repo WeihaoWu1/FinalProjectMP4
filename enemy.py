@@ -2,7 +2,7 @@ import pygame
 import random
 
 
-class Asteroid:
+class Enemy:
 
     def __init__(self, x, y):
         self.x = x

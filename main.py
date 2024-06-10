@@ -1,11 +1,15 @@
 import pygame
 import random
-from enemy import Asteroid
+from enemy import Enemy
 from spaceship import Spaceship
 from laser import Laser
 
 pygame.init()
 pygame.font.init()
+pygame.mixer.init()
+pygame.mixer.music.load("backgroundmusic.mp3")
+pygame.mixer.music.set_volume(0.5)
+pygame.mixer.music.play(-1)
 my_font = pygame.font.SysFont('Arial', 30)
 pygame.display.set_caption("Space Shooter")
 
@@ -35,10 +39,9 @@ g = 0
 b = 100
 user = Spaceship(350*1.2, 500*1.2)
 laser = Laser(999, 999)
-a = Asteroid(200, 200)
-asteroids = []
+a = Enemy(200, 200)
+enemies = []
 destroyed = []
-score = 0
 moving_x = a.direction_x()
 moving_y = a.direction_y()
 x_start = random.randint(0, 650*1.2)
@@ -46,10 +49,10 @@ run = True
 start_screen = True
 shoot_laser = False
 game_end = False
-display_score = my_font.render("Score: " + str(score), True, (255, 255, 255))
+display_score = my_font.render("Score: " , True, (255, 255, 255))
 
 
-def keep_score(x):
+def keep_score(x):   # recursive method
     if x >= len(destroyed):
         return 1
     return 1 + keep_score(x+1)
@@ -64,19 +67,19 @@ while run:
             run = False
         if event.type == pygame.MOUSEBUTTONDOWN and start_button_rect.collidepoint(event.pos):
             start_screen = False
-    if len(asteroids) < 3:
+    if len(enemies) < 3:
         x_pos = random.randint(50*1.2, 600*1.2)
-        a1 = Asteroid(x_pos, 0)
-        asteroids.append(a1)
+        a1 = Enemy(x_pos, 0)
+        enemies.append(a1)
     keys = pygame.key.get_pressed()  # checking pressed keys
     if keys[pygame.K_d] and not start_screen:
-        user.move_to_direction("right")
+        user.move("right")
     if keys[pygame.K_a] and not start_screen:
-        user.move_to_direction("left")
+        user.move("left")
     if keys[pygame.K_w] and not start_screen:
-        user.move_to_direction("up")
+        user.move("up")
     if keys[pygame.K_s] and not start_screen:
-        user.move_to_direction("down")
+        user.move("down")
     if keys[pygame.K_SPACE] and not start_screen:
         laser.set_location(user.x + 30, user.y - 30)
         shoot_laser = True
@@ -84,41 +87,44 @@ while run:
     if shoot_laser:
         laser.shoot()
 
-    for a in asteroids:
+    for a in enemies:
         moving_x = a.direction_x()
         moving_y = a.direction_y()
         if not laser.rect.colliderect(a.rect) and ((a.x > 0 or a.x < 700*1.2) or (a.y < 600*1.2)) and not start_screen:
             a.obstacle_move(moving_x, moving_y)
 
-    for a in asteroids:
+    for a in enemies:
         if laser.rect.colliderect(a.rect):
             moving_x = a.direction_x()
             moving_y = a.direction_y()
             x_start = random.randint(50*1.2, 600*1.2)
             a.set_location(x_start, 0)
             laser.set_location(-999, -999)
-            asteroids.remove(a)
+            enemies.remove(a)
             destroyed.append(a)
             # score += 1
 
     if laser.y < 0:
         laser.set_location(-999, -999)
 
-    for a in asteroids:
+    for a in enemies:
         if user.rect.colliderect(a.rect):
             game_end = True
-    for a in asteroids:
+    for a in enemies:
         if (a.x < 0 or a.x > 700*1.2) or (a.y > 600*1.2):
             game_end = True
 
     screen.fill((0, 0, 0))
     if start_screen:
-        screen.blit(intro_screen_image, (0, 0))
+        intro_font = pygame.font.SysFont('Arial', 100)
+        display_intro = intro_font.render("Shooting Game", True, (255, 255, 255))
+        screen.blit(display_intro, (100*1.2, 200*1.2))
+        # screen.blit(intro_screen_image, (0, 0))
         screen.blit(start_button_image, start_button_rect)
     if not start_screen and not game_end:
         screen.blit(background_image, (0, 0))
         screen.blit(user.image, user.rect)
-        for a in asteroids:
+        for a in enemies:
             screen.blit(a.image, a.rect)
         screen.blit(laser.image, laser.rect)
         screen.blit(display_score, (300*1.2, 0))

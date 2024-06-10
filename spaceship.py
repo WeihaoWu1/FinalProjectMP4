@@ -12,9 +12,9 @@ class Spaceship:
         self.image = pygame.transform.scale(self.image, scale_size)
         self.image_size = self.image.get_size()
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
-        self.delta = .5
+        self.delta = .9
 
-    def move_to_direction(self, direction):
+    def move(self, direction):
         if direction == "right":
             self.x = self.x + self.delta
         self.rect = pygame.Rect(self.x, self.y, self.image_size[0], self.image_size[1])
