@@ -7,7 +7,7 @@ class Asteroid:
     def __init__(self, x, y):
         self.x = x
         self.y = 0
-        self.image = pygame.image.load("asteroid.png")
+        self.image = pygame.image.load("enemy.png")
         self.image_size = self.image.get_size()
         scale_size = (50, 60)
         self.image = pygame.transform.scale(self.image, scale_size)
